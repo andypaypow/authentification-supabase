@@ -579,18 +579,33 @@
 
         // Gestion des formulaires
         function showForm(formName) {
-            // Cacher tous les formulaires
-            document.querySelectorAll('.form-container').forEach(form => {
-                form.classList.remove('active');
-            });
+            console.log('Affichage du formulaire:', formName);
 
-            // Masquer tous les messages
-            document.querySelectorAll('.success-message, .error-message').forEach(msg => {
-                msg.classList.remove('show');
-            });
+            try {
+                // Cacher tous les formulaires
+                const allForms = document.querySelectorAll('.form-container');
+                console.log('Formulaires trouvés:', allForms.length);
 
-            // Afficher le formulaire demandé
-            document.getElementById(formName + 'Form').classList.add('active');
+                allForms.forEach(form => {
+                    form.classList.remove('active');
+                });
+
+                // Masquer tous les messages
+                document.querySelectorAll('.success-message, .error-message').forEach(msg => {
+                    msg.classList.remove('show');
+                });
+
+                // Afficher le formulaire demandé
+                const targetForm = document.getElementById(formName + 'Form');
+                if (targetForm) {
+                    targetForm.classList.add('active');
+                    console.log('Formulaire affiché avec succès');
+                } else {
+                    console.error('Formulaire non trouvé:', formName + 'Form');
+                }
+            } catch (error) {
+                console.error('Erreur dans showForm:', error);
+            }
         }
 
         function showMessage(elementId, message, isError = false) {
@@ -675,34 +690,42 @@
 
         // Fonctions pour l'authentification Google
         async function handleGoogleLogin() {
+            console.log('Début connexion Google...');
             setButtonLoading('googleLoginBtn', true);
 
             try {
-                const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+                const result = await supabase.auth.signInWithOAuth({ provider: 'google' });
+                console.log('Résultat Google OAuth:', result);
 
-                if (error) {
-                    showMessage('loginError', error.message || 'Erreur lors de la connexion Google', true);
+                if (result.error) {
+                    console.error('Erreur connexion Google:', result.error);
+                    showMessage('loginError', result.error.message || 'Erreur lors de la connexion Google', true);
                     setButtonLoading('googleLoginBtn', false);
                 }
                 // Si succès, la page va rediriger vers Google
             } catch (error) {
+                console.error('Exception connexion Google:', error);
                 showMessage('loginError', 'Une erreur est survenue lors de la connexion Google', true);
                 setButtonLoading('googleLoginBtn', false);
             }
         }
 
         async function handleGoogleRegister() {
+            console.log('Début inscription Google...');
             setButtonLoading('googleRegisterBtn', true);
 
             try {
-                const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+                const result = await supabase.auth.signInWithOAuth({ provider: 'google' });
+                console.log('Résultat inscription Google:', result);
 
-                if (error) {
-                    showMessage('registerError', error.message || 'Erreur lors de l\'inscription Google', true);
+                if (result.error) {
+                    console.error('Erreur inscription Google:', result.error);
+                    showMessage('registerError', result.error.message || 'Erreur lors de l\'inscription Google', true);
                     setButtonLoading('googleRegisterBtn', false);
                 }
                 // Si succès, la page va rediriger vers Google
             } catch (error) {
+                console.error('Exception inscription Google:', error);
                 showMessage('registerError', 'Une erreur est survenue lors de l\'inscription Google', true);
                 setButtonLoading('googleRegisterBtn', false);
             }
@@ -804,42 +827,60 @@
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
-            // Attacher les événements
-            document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
-            document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
-            document.getElementById('forgotFormElement').addEventListener('submit', handleForgotPassword);
+            console.log('Page chargée, initialisation...');
 
-            // Attacher les événements pour Google
-            document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleLogin);
-            document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleRegister);
+            // Afficher le formulaire de connexion par défaut
+            showForm('login');
 
-            // Vérifier si l'utilisateur est déjà connecté
-            checkAuthStatus();
+            try {
+                // Attacher les événements
+                document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
+                document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
+                document.getElementById('forgotFormElement').addEventListener('submit', handleForgotPassword);
 
-            // Vérifier s'il y a un callback OAuth dans l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('code')) {
-                // Gérer le callback OAuth
-                handleOAuthCallback();
+                // Attacher les événements pour Google
+                document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleLogin);
+                document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleRegister);
+
+                console.log('Événements attachés');
+
+                // Vérifier si l'utilisateur est déjà connecté
+                checkAuthStatus();
+
+                // Vérifier s'il y a un callback OAuth dans l'URL
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('code')) {
+                    console.log('Callback OAuth détecté');
+                    // Gérer le callback OAuth
+                    handleOAuthCallback();
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation:', error);
+                // En cas d'erreur, afficher quand même le formulaire de connexion
+                showForm('login');
             }
         });
 
         // Fonction pour gérer le callback OAuth
         async function handleOAuthCallback() {
-            showMessage('loginSuccess', 'Connexion Google en cours...');
-
             try {
+                console.log('Traitement du callback OAuth...');
+                showMessage('loginSuccess', 'Connexion Google en cours...');
+
                 const { data, error } = await supabase.handleOAuthCallback();
 
                 if (error) {
+                    console.error('Erreur OAuth:', error);
                     showMessage('loginError', error.message || 'Erreur lors de la connexion Google', true);
-                } else if (data.user) {
+                } else if (data && data.user) {
+                    console.log('Utilisateur OAuth connecté:', data.user);
                     showMessage('loginSuccess', 'Connexion réussie !');
                     setTimeout(() => {
                         showDashboard(data.user);
                     }, 1000);
                 }
             } catch (error) {
+                console.error('Exception lors du callback OAuth:', error);
                 showMessage('loginError', 'Une erreur est survenue lors de la connexion Google', true);
             }
         }
