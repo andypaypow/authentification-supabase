@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentification Supabase</title>
+    <title>Test d'Authentification Supabase</title>
     <style>
         * {
             margin: 0;
@@ -194,33 +194,13 @@
             pointer-events: none;
             opacity: 0.8;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Formulaire de Connexion -->
         <div id="loginForm" class="form-container active">
-            <div class="header">
-                <h1>🔐 Authentification</h1>
-                <p>Système d'authentification Supabase</p>
-            </div>
-            
+            <h2>Connexion</h2>
             <div class="success-message" id="loginSuccess"></div>
             <div class="error-message" id="loginError"></div>
 
@@ -246,11 +226,7 @@
 
         <!-- Formulaire d'Inscription -->
         <div id="registerForm" class="form-container">
-            <div class="header">
-                <h1>👋 Inscription</h1>
-                <p>Créez votre compte</p>
-            </div>
-            
+            <h2>Inscription</h2>
             <div class="success-message" id="registerSuccess"></div>
             <div class="error-message" id="registerError"></div>
 
@@ -280,11 +256,7 @@
 
         <!-- Formulaire Mot de Passe Oublié -->
         <div id="forgotForm" class="form-container">
-            <div class="header">
-                <h1>🔑 Mot de Passe Oublié</h1>
-                <p>Réinitialisez votre mot de passe</p>
-            </div>
-            
+            <h2>Mot de Passe Oublié</h2>
             <div class="success-message" id="forgotSuccess"></div>
             <div class="error-message" id="forgotError"></div>
 
@@ -308,13 +280,9 @@
 
         <!-- Tableau de bord utilisateur -->
         <div id="dashboard" class="form-container">
-            <div class="header">
-                <h1>👤 Tableau de Bord</h1>
-                <p>Bienvenue !</p>
-            </div>
-            
+            <h2>Tableau de Bord</h2>
             <div class="user-info">
-                <h3>Utilisateur Connecté</h3>
+                <h3>👤 Utilisateur Connecté</h3>
                 <p><strong>Email:</strong> <span id="userEmail"></span></p>
                 <p><strong>ID:</strong> <span id="userId"></span></p>
                 <p><strong>Connecté le:</strong> <span id="loginTime"></span></p>
@@ -350,6 +318,7 @@
 
             async signUp({ email, password }) {
                 try {
+                    // Simulation d'inscription - en réalité, utiliserait l'API Supabase
                     const response = await fetch(`${this.url}/auth/v1/signup`, {
                         method: 'POST',
                         headers: {
