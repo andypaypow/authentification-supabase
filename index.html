@@ -194,6 +194,66 @@
             pointer-events: none;
             opacity: 0.8;
         }
+
+        .google-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: #ffffff;
+            color: #333333;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .google-btn:hover {
+            background: #f8f9fa;
+            border-color: #dadce0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .google-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e1e1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #666;
+            font-size: 14px;
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -216,6 +276,20 @@
                 </div>
 
                 <button type="submit" class="btn" id="loginBtn">Se connecter</button>
+
+                <div class="divider">
+                    <span>ou</span>
+                </div>
+
+                <button type="button" class="google-btn" id="googleLoginBtn">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continuer avec Google
+                </button>
             </form>
 
             <div class="nav-links">
@@ -247,6 +321,20 @@
                 </div>
 
                 <button type="submit" class="btn" id="registerBtn">S'inscrire</button>
+
+                <div class="divider">
+                    <span>ou</span>
+                </div>
+
+                <button type="button" class="google-btn" id="googleRegisterBtn">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    S'inscrire avec Google
+                </button>
             </form>
 
             <div class="nav-links">
@@ -309,6 +397,7 @@
                 this.auth = {
                     signUp: this.signUp.bind(this),
                     signInWithPassword: this.signInWithPassword.bind(this),
+                    signInWithOAuth: this.signInWithOAuth.bind(this),
                     resetPasswordForEmail: this.resetPasswordForEmail.bind(this),
                     signOut: this.signOut.bind(this),
                     getUser: this.getUser.bind(this)
@@ -366,6 +455,58 @@
                 } catch (error) {
                     return { data: null, error };
                 }
+            }
+
+            async signInWithOAuth({ provider }) {
+                try {
+                    // Construire l'URL OAuth pour Google
+                    const authUrl = `${this.url}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(window.location.origin)}&response_type=code`;
+
+                    // Rediriger vers l'URL d'authentification OAuth
+                    window.location.href = authUrl;
+
+                    // Cette méthode ne retournera jamais car la page va rediriger
+                    return { data: null, error: null };
+                } catch (error) {
+                    return { data: null, error };
+                }
+            }
+
+            // Méthode pour gérer le callback OAuth
+            async handleOAuthCallback() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+
+                if (code) {
+                    try {
+                        const response = await fetch(`${this.url}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': this.key,
+                                'Authorization': `Bearer ${this.key}`
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            this.currentUser = data.user;
+                            localStorage.setItem('supabase_token', data.access_token);
+
+                            // Nettoyer l'URL
+                            window.history.replaceState({}, document.title, window.location.pathname);
+
+                            return { data: { user: data.user, session: data }, error: null };
+                        } else {
+                            return { data: null, error: data };
+                        }
+                    } catch (error) {
+                        return { data: null, error };
+                    }
+                }
+
+                return { data: null, error: null };
             }
 
             async resetPasswordForEmail(email) {
@@ -480,6 +621,28 @@
                 if (buttonId === 'loginBtn') button.textContent = 'Se connecter';
                 else if (buttonId === 'registerBtn') button.textContent = "S'inscrire";
                 else if (buttonId === 'forgotBtn') button.textContent = 'Envoyer le lien';
+                else if (buttonId === 'googleLoginBtn') {
+                    button.innerHTML = `
+                        <svg class="google-icon" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continuer avec Google
+                    `;
+                }
+                else if (buttonId === 'googleRegisterBtn') {
+                    button.innerHTML = `
+                        <svg class="google-icon" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        S'inscrire avec Google
+                    `;
+                }
             }
         }
 
@@ -507,6 +670,41 @@
                 showMessage('loginError', 'Une erreur est survenue lors de la connexion', true);
             } finally {
                 setButtonLoading('loginBtn', false);
+            }
+        }
+
+        // Fonctions pour l'authentification Google
+        async function handleGoogleLogin() {
+            setButtonLoading('googleLoginBtn', true);
+
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+
+                if (error) {
+                    showMessage('loginError', error.message || 'Erreur lors de la connexion Google', true);
+                    setButtonLoading('googleLoginBtn', false);
+                }
+                // Si succès, la page va rediriger vers Google
+            } catch (error) {
+                showMessage('loginError', 'Une erreur est survenue lors de la connexion Google', true);
+                setButtonLoading('googleLoginBtn', false);
+            }
+        }
+
+        async function handleGoogleRegister() {
+            setButtonLoading('googleRegisterBtn', true);
+
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+
+                if (error) {
+                    showMessage('registerError', error.message || 'Erreur lors de l\'inscription Google', true);
+                    setButtonLoading('googleRegisterBtn', false);
+                }
+                // Si succès, la page va rediriger vers Google
+            } catch (error) {
+                showMessage('registerError', 'Une erreur est survenue lors de l\'inscription Google', true);
+                setButtonLoading('googleRegisterBtn', false);
             }
         }
 
@@ -611,9 +809,40 @@
             document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
             document.getElementById('forgotFormElement').addEventListener('submit', handleForgotPassword);
 
+            // Attacher les événements pour Google
+            document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleLogin);
+            document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleRegister);
+
             // Vérifier si l'utilisateur est déjà connecté
             checkAuthStatus();
+
+            // Vérifier s'il y a un callback OAuth dans l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('code')) {
+                // Gérer le callback OAuth
+                handleOAuthCallback();
+            }
         });
+
+        // Fonction pour gérer le callback OAuth
+        async function handleOAuthCallback() {
+            showMessage('loginSuccess', 'Connexion Google en cours...');
+
+            try {
+                const { data, error } = await supabase.handleOAuthCallback();
+
+                if (error) {
+                    showMessage('loginError', error.message || 'Erreur lors de la connexion Google', true);
+                } else if (data.user) {
+                    showMessage('loginSuccess', 'Connexion réussie !');
+                    setTimeout(() => {
+                        showDashboard(data.user);
+                    }, 1000);
+                }
+            } catch (error) {
+                showMessage('loginError', 'Une erreur est survenue lors de la connexion Google', true);
+            }
+        }
     </script>
 </body>
 </html>
